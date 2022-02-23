@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from cross_validation import TimeCrossValidator
+from metrics import compute_metrics
 
 if __name__ == "__main__":
 
@@ -51,7 +52,5 @@ if __name__ == "__main__":
             if (p+1) < 14:
                 X_test[p+1][1] = predictions[p]  # Overwrite YESTERDAY_DELTA in next time step
         # Print RMSE of 14 days predictions
-        # TODO: Refine the metric
-        # print(f'Ground Truth: {y_test}')
-        # print(f' Predictions: {predictions}')
-        print(f"RMSE: {np.sqrt(np.mean((predictions-y_test)**2))}")
+        rmse_metrics = compute_metrics(predictions, y_test)
+        print(rmse_metrics)
