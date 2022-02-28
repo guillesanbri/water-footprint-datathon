@@ -1,22 +1,31 @@
 import pandas as pd
 import numpy as np
+import wandb
 from cross_validation import TimeCrossValidator
 from metrics import compute_metrics
 
 if __name__ == "__main__":
+    # Hyperparameter config
+    hyperparameters_default = {
+        "model": "Yesterday delta naive baseline",
+        "freq": "day",
+        "ID_sample": 10,
+    }
+
+    # Init wandb
+    wandb.init(project="UniversityHack", config=hyperparameters_default)
+    config = wandb.config
 
     # Read data
-    ID_sample = 10
-    freq = "day"
-    assert freq in ["day", "hour"]
-    df = pd.read_csv(f"../Data/water_meters/{str(ID_sample).zfill(4)}.csv")
-    print(f"Data from meter no. {ID_sample} loaded correctly.")
+    assert config.freq in ["day", "hour"]
+    df = pd.read_csv(f"../Data/water_meters/{str(config.ID_sample).zfill(4)}.csv")
+    print(f"Data from meter no. {config.ID_sample} loaded correctly.")
 
     # Feature independent preprocessing
     df["SAMPLETIME"] = pd.to_datetime(df["SAMPLETIME"], utc=True)
     temp = df.copy()
     temp.index = temp.SAMPLETIME
-    if freq == "day":
+    if config.freq == "day":
         temp = temp.groupby(pd.Grouper(freq='D')).sum()
     temp["TARGET"] = temp["DELTA"]
     temp["YESTERDAY_DELTA"] = temp["DELTA"].shift(1)
@@ -32,7 +41,7 @@ if __name__ == "__main__":
     # Time series cross validation
     # 13 splits of two weeks: first training uses the first 6 months of data.
     # Last split trains with all but the two last weeks of data.
-    tscv = TimeCrossValidator(data_freq=freq, n_splits=13, test_days=14)
+    tscv = TimeCrossValidator(data_freq=config.freq, n_splits=13, test_days=14)
     for split, (train_index, test_index) in enumerate(tscv.split(X)):
         cv_split_title = f"  CV Split no. {split + 1}  "
         print("="*len(cv_split_title))
@@ -53,4 +62,5 @@ if __name__ == "__main__":
                 X_test[p+1][1] = predictions[p]  # Overwrite YESTERDAY_DELTA in next time step
         # Print RMSE of 14 days predictions
         rmse_metrics = compute_metrics(predictions, y_test)
+        wandb.log({"cv_split": split+1, **rmse_metrics})
         print(rmse_metrics)
