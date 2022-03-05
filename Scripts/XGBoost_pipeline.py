@@ -6,8 +6,9 @@ from cross_validation import TimeCrossValidator
 import xgboost as xgb
 from metrics import compute_metrics
 from collections import Counter
-from time_encoding import encode_hour, encode_month, encode_weekday
 
+from time_encoding import encode_hour, encode_month, encode_weekday
+from holidays import add_holiday_column
 
 if __name__ == "__main__":
     # Hyperparameter config
@@ -33,7 +34,7 @@ if __name__ == "__main__":
         "monthly_encoding": "RBF",
         "weekday_encoding": "RBF",
         "hourly_encoding": "RBF",
-        "Holidays": False,
+        "holidays": False,
     }
 
     # Init wandb
@@ -54,6 +55,13 @@ if __name__ == "__main__":
     temp["TARGET"] = temp["DELTA"]
     temp["YESTERDAY_DELTA"] = temp["DELTA"].shift(1)
 
+    # Add holiday data
+    additional_cols = []
+    if config.holidays:
+        col_name = "holiday"
+        additional_cols.append(col_name)
+        temp = add_holiday_column(temp, col_name)
+
     # Time encoding
     # # Month encoding
     temp, month_encoding_cols = encode_month(temp, config.monthly_encoding)
@@ -64,7 +72,9 @@ if __name__ == "__main__":
 
     # Extract target and input columns.
     # Exclude the row with NaN values (due to shift operation)
-    X = temp[["YESTERDAY_DELTA", *month_encoding_cols, *weekday_encoding_cols, *hour_encoding_cols]].to_numpy()[1:]
+    X = temp[["YESTERDAY_DELTA",
+              *additional_cols,
+              *month_encoding_cols, *weekday_encoding_cols, *hour_encoding_cols]].to_numpy()[1:]
     y = temp["TARGET"].to_numpy()[1:]
 
     print(f"X shape: {X.shape}, y shape: {y.shape}")
