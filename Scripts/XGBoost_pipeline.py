@@ -6,6 +6,7 @@ from sklego.preprocessing import RepeatingBasisFunction
 from cross_validation import TimeCrossValidator
 import xgboost as xgb
 from metrics import compute_metrics
+from collections import Counter
 
 
 def encode_rbf(df, column, n_periods, input_range, col_tag):
@@ -159,4 +160,8 @@ if __name__ == "__main__":
 
         rmse_metrics = compute_metrics(predictions, y_test)
         wandb.log({"cv_split": split+1, **rmse_metrics})
-        print(rmse_metrics)
+        mean_metrics.update(rmse_metrics)
+    mean_metrics = {k: v/n_splits for k, v in mean_metrics.items()}
+    print(f"Mean of metrics along {n_splits} splits:")
+    print(mean_metrics)
+    wandb.log({"cv_split": "mean", **mean_metrics})
