@@ -1,13 +1,13 @@
 project: UniversityHack
 program: XGBoost_pipeline.py
-name: XGBoost_ID_100
+name: XGBoost_multiID
 method: bayes
 metric:
   goal: minimize
-  name: RMSE_Total
+  name: mean_IDs_RMSE_Total
 parameters:
   freq:
-    values: ["day", "hour"]
+    values: ["day"]
   grow_policy:
     values: [0, 1]
   n_estimators:
