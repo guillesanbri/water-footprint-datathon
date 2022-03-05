@@ -1,0 +1,53 @@
+project: UniversityHack
+program: XGBoost_pipeline.py
+name: XGBoost_ID_100
+method: bayes
+metric:
+  goal: minimize
+  name: RMSE_Total
+parameters:
+  freq:
+    values: ["day", "hour"]
+  grow_policy:
+    values: [0, 1]
+  n_estimators:
+    distribution: q_log_uniform
+    min: 0.0
+    max: 6.0
+    q: 1
+  learning_rate:
+    distribution: log_uniform
+    min: -7.0
+    max: -0.5
+  gamma:
+    distribution: log_uniform
+    min: -5
+    max: 10
+  max_depth:
+    distribution: int_uniform
+    min: 2
+    max: 15
+  min_child_weight:
+    distribution: log_uniform
+    min: -5
+    max: 10
+  subsample:
+    distribution: uniform
+    min: 0.0
+    max: 1.0
+  lambda:
+    distribution: log_uniform
+    min: -5
+    max: 10
+  n_lags:
+    distribution: int_uniform
+    min: 0
+    max: 14
+  monthly_encoding:
+    values: ["RBF", "Sine", "None"]
+  weekday_encoding:
+    values: ["RBF", "Sine", "None"]
+  hourly_encoding:
+    values: ["RBF", "Sine", "None"]
+  holidays:
+    values: [True, False]
