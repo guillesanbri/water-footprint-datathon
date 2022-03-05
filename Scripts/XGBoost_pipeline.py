@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # https://www.kaggle.com/prashant111/a-guide-on-xgboost-hyperparameters-tuning
     # https://xgboost.readthedocs.io/en/latest/python/python_api.html#xgboost.XGBRegressor
     hyperparameters_default = {
-        "freq": "hour",
+        "freq": "day",
 
         "model": model,
         "booster": "gbtree",
@@ -31,6 +31,7 @@ if __name__ == "__main__":
         "tree_method": "auto",
 
         "ID_sample": 100,  # TODO
+        "n_lags": 1,
         "monthly_encoding": "RBF",
         "weekday_encoding": "RBF",
         "hourly_encoding": "RBF",
@@ -53,7 +54,13 @@ if __name__ == "__main__":
     if config.freq == "day":
         temp = temp.groupby(pd.Grouper(freq='D')).sum()
     temp["TARGET"] = temp["DELTA"]
-    temp["YESTERDAY_DELTA"] = temp["DELTA"].shift(1)
+
+    # Add lagged deltas
+    lagged_cols = []
+    for i in range(config.n_lags):
+        lag_name = f"delta_lag_{i+1}"
+        lagged_cols.append(lag_name)
+        temp[lag_name] = temp["DELTA"].shift(i+1)
 
     # Add holiday data
     additional_cols = []
@@ -71,11 +78,11 @@ if __name__ == "__main__":
     temp, hour_encoding_cols = encode_hour(temp, config.hourly_encoding) if config.freq == "hour" else (temp, [])
 
     # Extract target and input columns.
-    # Exclude the row with NaN values (due to shift operation)
-    X = temp[["YESTERDAY_DELTA",
+    # Exclude rows with NaN values (due to shift operation)
+    X = temp[[*lagged_cols,
               *additional_cols,
-              *month_encoding_cols, *weekday_encoding_cols, *hour_encoding_cols]].to_numpy()[1:]
-    y = temp["TARGET"].to_numpy()[1:]
+              *month_encoding_cols, *weekday_encoding_cols, *hour_encoding_cols]].to_numpy()[config.n_lags:]
+    y = temp["TARGET"].to_numpy()[config.n_lags:]
 
     print(f"X shape: {X.shape}, y shape: {y.shape}")
 
@@ -105,7 +112,11 @@ if __name__ == "__main__":
         for p in range(n_iter):
             predictions[p] = regressor.predict(X_test[p].reshape(1, -1))
             if (p+1) < n_iter:
-                X_test[p+1][0] = predictions[p]  # Overwrite YESTERDAY_DELTA in next time step
+                for i in range(config.n_lags):
+                    if i == 0:
+                        X_test[p+1][i] = predictions[p]  # Overwrite delta-1 in next time step
+                    else:
+                        X_test[p+1][i] = X_test[p][i-1]
 
         # Print RMSE of 14 days predictions
         if config.freq == "hour":
