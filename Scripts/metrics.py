@@ -39,9 +39,10 @@ def compute_metrics(y_pred, y_true):
     for i in range(n_days):
         RMSE_di = rmse(y_pred[i], y_true[i])
         metrics_dict[f"RMSE_d{str(i+1).zfill(2)}"] = RMSE_di
-        RMSEd_values.append((RMSE_di))
+        if i < 7:
+            RMSEd_values.append((RMSE_di))
     for e in range(n_weeks):
-        week_pred = np.sum(y_pred[e*7:(e+1)*7])
+        week_pred = np.sum(y_pred[e * 7:(e + 1) * 7])
         week_true = np.sum(y_true[e * 7:(e + 1) * 7])
         RMSE_we = rmse(week_pred, week_true)
         metrics_dict[f"RMSE_w{str(e+1).zfill(2)}"] = RMSE_we
