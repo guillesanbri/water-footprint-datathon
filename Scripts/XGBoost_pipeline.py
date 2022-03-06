@@ -22,25 +22,25 @@ if __name__ == "__main__":
         "model": model,
         "booster": "gbtree",
         "grow_policy": 0,  # 0: grow depth-wise, 1: favours splitting at nodes with the highest loss change
-        "n_estimators": 100,
-        "learning_rate": 0.3,
-        "gamma": 0,
-        "max_depth": 6,
-        "min_child_weight": 1,
-        "subsample": 1,
-        "lambda": 1,
+        "n_estimators": 25,
+        "learning_rate": 0.11,
+        "gamma": 16.52,
+        "max_depth": 4,
+        "min_child_weight": 0.21,
+        "subsample": 0.35,
+        "lambda": 0.01,
         "tree_method": "auto",
 
         "IDs_samples": validation_ids_v1,
-        "n_lags": 1,
-        "monthly_encoding": "RBF",
-        "weekday_encoding": "RBF",
+        "n_lags": 14,
+        "monthly_encoding": "Sine",
+        "weekday_encoding": "None",
         "hourly_encoding": "RBF",
         "holidays": False,
     }
 
     # Init wandb
-    wandb.init(project="UniversityHack", config=hyperparameters_default,)  # mode="disabled"
+    wandb.init(project="UniversityHack", config=hyperparameters_default, mode="disabled")  # mode="disabled"
     config = wandb.config
 
     # Iterate over multiple IDs
