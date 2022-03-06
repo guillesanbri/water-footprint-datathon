@@ -34,11 +34,13 @@ def encode_sine(df, column, n_periods, input_range, col_tag):
 
 
 def encode_time(df, encoding_type, column, n_periods, input_range, col_tag):
-    assert encoding_type in ["RBF", "Sine", "None"]
+    assert encoding_type in ["RBF", "Sine", "Ordinal", "None"]
     if encoding_type == "RBF":
         return encode_rbf(df, column, n_periods, input_range, col_tag)
     elif encoding_type == "Sine":
         return encode_sine(df, column, n_periods, input_range, col_tag)
+    elif encoding_type == "Ordinal":
+        return df, [column]
     elif encoding_type == "None":
         return df, []
 
