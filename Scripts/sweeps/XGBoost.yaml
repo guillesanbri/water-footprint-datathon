@@ -1,6 +1,6 @@
 project: UniversityHack
 program: XGBoost_pipeline.py
-name: XGBoost_multiID
+name: XGBoost_multiID_fix
 method: bayes
 metric:
   goal: minimize
@@ -9,7 +9,7 @@ parameters:
   freq:
     values: ["day"]
   grow_policy:
-    values: [0, 1]
+    values: ["depthwise", "lossguide"]
   n_estimators:
     distribution: q_log_uniform
     min: 0.0
@@ -46,7 +46,7 @@ parameters:
   monthly_encoding:
     values: ["RBF", "Sine", "None"]
   weekday_encoding:
-    values: ["RBF", "Sine", "None"]
+    values: ["RBF", "Sine", "Ordinal", "None"]
   hourly_encoding:
     values: ["RBF", "Sine", "None"]
   holidays:

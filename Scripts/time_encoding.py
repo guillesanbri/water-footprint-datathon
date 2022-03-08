@@ -27,7 +27,7 @@ def encode_sine(df, column, n_periods, input_range, col_tag):
     df[sin_col_name] = np.sin(angle_rad)
     sine_cols.append(sin_col_name)
     # Cosine
-    cos_col_name = f"{col_tag}_sin"
+    cos_col_name = f"{col_tag}_cos"
     df[cos_col_name] = np.cos(angle_rad)
     sine_cols.append(cos_col_name)
     return df, sine_cols

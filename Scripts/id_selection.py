@@ -1,3 +1,6 @@
+import os
+import numpy as np
+
 reading_eq_zero = [272, 323, 461, 549, 1225, 1261, 1506, 1837, 1896, 2001, 2089, 2135, 2231, 2369, 2542, 2544, 2545,
                    2547, 2690]
 
@@ -81,6 +84,11 @@ validation_ids_v1 = ['0531', '1811', '0415', '2294', '1232', '0865', '1529', '04
                      '0580', '0589', '2218', '0029', '1885', '2074', '0593', '0755', '1478', '1376',
                      '1017', '1691', '1971', '1089', '0767', '0836', '0108', '2332', '0049', '0999']
 
+
+def get_all_ids(id_dir):
+    return [f[:4] for f in os.listdir(id_dir) if f[-3:] == "csv"]
+
+
 lists = [
     reading_eq_zero,
     reading_lt_zero,
@@ -94,9 +102,6 @@ if __name__ == "__main__":
     sets = [set(x) for x in lists]
     num_files = len(set().union(*sets))
     print(num_files)
-
-    import os
-    import numpy as np
 
     files = os.listdir("../Data/water_meters")
     files = np.array([f[:4] for f in files if f[-3:] == "csv"])
