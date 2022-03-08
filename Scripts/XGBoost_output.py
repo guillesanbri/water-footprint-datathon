@@ -58,7 +58,8 @@ if __name__ == "__main__":
         temp = df.copy()
         temp.index = temp.SAMPLETIME
         if config.freq == "day":
-            temp = temp.groupby(pd.Grouper(freq='D')).sum()
+            temp = temp.groupby(pd.Grouper(freq='D')).mean()
+            temp = temp.dropna()
         temp["TARGET"] = temp["DELTA"]
 
         if len(temp.index) != 365:
@@ -129,6 +130,8 @@ if __name__ == "__main__":
         else:  # Number of data points below 20
             print("E")
             predictions = np.zeros(14)
+
+        predictions = 24 * predictions
 
         for i, d in enumerate([f"Dia_{i}" for i in range(1, 8)]):
             row[d] = predictions[i]
